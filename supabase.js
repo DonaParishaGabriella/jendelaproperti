@@ -2,8 +2,8 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
 const supabase = createClient(
-  "https://feriqnmbfzixgeedmvzw.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlcmlxbm1iZnppeGdlZWRtdnp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2ODY3NTAsImV4cCI6MjA2NjI2Mjc1MH0.POc4TH7fATyb1lsWmMPmUZUww4vaH_5qgGCsD3MsW-E"
+  "https://wkqvfgbmggmwrvrglkgj.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrcXZmZ2JtZ2dtd3J2cmdsa2dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MzQ4MzUsImV4cCI6MjA2NjQxMDgzNX0.PPLV0UWBSd8vDVDpC2krQjeanTcrSupgWEQohztyipE"
 );
 
 
@@ -151,11 +151,12 @@ async function tambahRumah() {
   const harga = document.getElementById("harga").value.trim();
   const lokasi = document.getElementById("lokasi").value.trim();
   const ukuran = document.getElementById("ukuran").value.trim();
+  const no_telp = document.getElementById("no_telp").value.trim();
   const category_id = document.getElementById("kategori-select").value;
   const fileInput = document.getElementById("gambar");
   const file = fileInput.files[0];
 
-  if (!judul || !harga || !lokasi || !file || !category_id) {
+  if (!judul || !harga || !lokasi || !file || !category_id || !no_telp) {
     Swal.fire("Oops!", "Semua field wajib diisi dan gambar harus dipilih!", "warning");
     btn.disabled = false;
     btn.textContent = "Simpan Rumah";
@@ -179,6 +180,7 @@ async function tambahRumah() {
     harga,
     lokasi,
     ukuran,
+    no_telp,
     gambar: fileName,
     category_id: parseInt(category_id)
   }]);
@@ -288,6 +290,7 @@ async function tampilkanRumah(kategoriId = null) {
         <p><strong>${formatRupiah(rumah.harga)}</strong></p>
         <p>${rumah.ukuran || '-'}</p>
         <p>${rumah.lokasi}</p>
+        <p>Hubungi : ${rumah.no_telp}</p>
         <div class="d-flex justify-content-between">
           <p><em>Kategori: ${rumah.category?.name || '-'}</em></p>
           <button class="btn btn-outline-danger btn-sm" onclick="hapusRumah(${rumah.id}, '${rumah.gambar}')" title="Hapus"><i class="bi bi-trash"></i></button>
