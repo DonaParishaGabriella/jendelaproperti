@@ -274,7 +274,7 @@ async function tampilkanRumah(kategoriId = null) {
   container.className = "row g-3";
 
   data.forEach(rumah => {
-    const gambarURL = `https://feriqnmbfzixgeedmvzw.supabase.co/storage/v1/object/public/rumah-gambar/${rumah.gambar}`;
+    const gambarURL = `https://wkqvfgbmggmwrvrglkgj.supabase.co/storage/v1/object/public/rumah-gambar/${rumah.gambar}`;
 
     const col = document.createElement("div");
     col.className = "col-12 col-md-6 col-lg-3 d-flex";
