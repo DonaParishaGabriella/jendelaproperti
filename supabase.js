@@ -6,6 +6,50 @@ const supabase = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrcXZmZ2JtZ2dtd3J2cmdsa2dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA4MzQ4MzUsImV4cCI6MjA2NjQxMDgzNX0.PPLV0UWBSd8vDVDpC2krQjeanTcrSupgWEQohztyipE"
 );
 
+let SQL, db;
+const SQL_READY = initSqlJs({
+  locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.6.2/${file}`
+}).then(SQLLib => {
+  SQL = SQLLib;
+  db = new SQL.Database();
+
+  db.run(`CREATE TABLE IF NOT EXISTS rumah (
+    judul TEXT,
+    harga INTEGER,
+    lokasi TEXT,
+    ukuran TEXT,
+    no_telp TEXT,
+    gambar TEXT,
+    category_id INTEGER
+  )`);
+
+  const saved = localStorage.getItem('sqliteRumah');
+  if (saved) {
+    db = new SQL.Database(new Uint8Array(JSON.parse(saved)));
+    console.log("Database rumah dipulihkan dari localStorage");
+  } else {
+    console.log("Database rumah SQLite baru dibuat");
+  }
+});
+
+function downloadSQLiteFile() {
+  const binaryArray = db.export();
+  const blob = new Blob([binaryArray], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'data_rumah.sqlite';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+const downloadSQLiteBtn = document.getElementById('downloadSQLiteBtn');
+downloadSQLiteBtn.addEventListener('click', async () => {
+  await SQL_READY;
+  downloadSQLiteFile();
+});
 
 function formatRupiah(angka) {
   return new Intl.NumberFormat("id-ID", {
@@ -195,11 +239,28 @@ async function tambahRumah() {
     document.getElementById("kategori-select").selectedIndex = 0;
     fileInput.value = "";
     tampilkanRumah();
+
+    // --- Simpan ke SQLite lokal ---
+    await SQL_READY;
+    db.run("INSERT INTO rumah (judul, harga, lokasi, ukuran, no_telp, gambar, category_id) VALUES (?, ?, ?, ?, ?, ?, ?)", [
+      judul,
+      parseInt(harga),
+      lokasi,
+      ukuran,
+      no_telp,
+      fileName,
+      parseInt(category_id)
+    ]);
+
+    const backup = db.export();
+    localStorage.setItem('sqliteRumah', JSON.stringify(Array.from(backup)));
+    console.log("Data rumah juga disimpan ke SQLite lokal");
   }
 
   btn.disabled = false;
   btn.textContent = "Simpan Rumah";
 }
+
 
 async function hapusRumah(id, namaFile) {
   const konfirmasi = await Swal.fire({
@@ -324,7 +385,7 @@ async function simpan() {
   }
 }
 
-window.tambahRumah = tambahRumah; 
+window.tambahRumah = tambahRumah;
 window.hapusRumah = hapusRumah;
 window.simpan = simpan;
 window.onload = () => {
